@@ -1313,7 +1313,7 @@ Shartlar:
 
 **Jabborov Abduroziq**
 
-- 📧 Email: [abduroziqjabborov@gmail.com](mailto:abduroziqjabborov@gmail.com)
+- 📧 Email: [blogchikuz@gmail.com](mailto:blogchikuz@gmail.com)
 - 🐙 GitHub: [@blogchik](https://github.com/blogchik)
 - 📅 Yil: 2025
 
@@ -1365,8 +1365,8 @@ Yordam kerakmi? Quyidagi usullardan foydalaning:
 
 - 🐛 **Bug report**: [GitHub Issues](https://github.com/blogchik/amocrm-integration-gateway/issues)
 - 💡 **Feature request**: [GitHub Issues](https://github.com/blogchik/amocrm-integration-gateway/issues)
-- 📧 **Email**: abduroziqjabborov@gmail.com
-- 💬 **Telegram**: Murojaat uchun email orqali bog'laning
+- 📧 **Email**: [blogchikuz@gmail.com](mailto:blogchikuz@gmail.com)
+- 💬 **Telegram**: [@JabborovAbduroziq](https://t.me/JabborovAbduroziq)
 
 ---
 
