@@ -1,0 +1,6 @@
+storage/tokens.json
+.env
+vendor/
+.idea/
+.vscode/
+*.log

@@ -1,0 +1,36 @@
+services:
+  # Nginx web server
+  nginx:
+    image: nginx:alpine
+    container_name: amocrm_gateway_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/html/public
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - gateway_network
+    restart: unless-stopped
+
+  # PHP-FPM
+  php:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: amocrm_gateway_php
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - gateway_network
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PHP_MEMORY_LIMIT=256M
+      - PHP_MAX_EXECUTION_TIME=60
+
+networks:
+  gateway_network:
+    driver: bridge
