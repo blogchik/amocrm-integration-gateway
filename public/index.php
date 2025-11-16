@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 use App\Middleware\ApiKeyMiddleware;
 use App\Controllers\LeadController;
 use App\Controllers\InfoController;
+use App\Controllers\DiagnosticsController;
 use App\Helpers\Response;
 
 // Routing
@@ -106,6 +107,20 @@ try {
     if ($method === 'GET' && $uri === '/api/v1/info/account') {
         $controller = new InfoController();
         $controller->getAccount();
+        exit;
+    }
+
+    // GET /api/v1/diagnostics/token-status - Token diagnostics
+    if ($method === 'GET' && $uri === '/api/v1/diagnostics/token-status') {
+        $controller = new DiagnosticsController();
+        $controller->getTokenStatus();
+        exit;
+    }
+
+    // GET /api/v1/diagnostics/config - Config diagnostics
+    if ($method === 'GET' && $uri === '/api/v1/diagnostics/config') {
+        $controller = new DiagnosticsController();
+        $controller->getConfig();
         exit;
     }
 

@@ -66,6 +66,12 @@ class AmoAuth
             return false;
         }
 
+        // Refresh token formatini tekshirish
+        if (strlen($refreshToken) < 50) {
+            error_log('Refresh token seems invalid (too short): ' . substr($refreshToken, 0, 20) . '...');
+            return false;
+        }
+
         $url = "https://{$this->domain}/oauth2/access_token";
         
         $data = [
@@ -76,13 +82,22 @@ class AmoAuth
             'redirect_uri' => $this->redirectUri,
         ];
 
+        error_log('Attempting to refresh token for domain: ' . $this->domain);
+
         $response = $this->makeRequest($url, $data);
 
         if (!$response || !isset($response['access_token'])) {
-            error_log('Failed to refresh token: ' . json_encode($response));
+            error_log('Failed to refresh token. Response: ' . json_encode($response));
+            
+            // Agar refresh token noto'g'ri bo'lsa
+            if (isset($response['hint']) && strpos($response['hint'], 'revoked') !== false) {
+                error_log('CRITICAL: Refresh token has been revoked. Manual re-authorization required!');
+            }
+            
             return false;
         }
 
+        error_log('Token successfully refreshed. New expires_at: ' . (time() + $response['expires_in']));
         return $this->saveTokens($response);
     }
 
@@ -122,13 +137,15 @@ class AmoAuth
                 'Content-Type: application/json',
             ],
             CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_TIMEOUT => 30, // 30 soniya timeout
         ]);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         
         if (curl_errno($ch)) {
-            error_log('CURL error: ' . curl_error($ch));
+            $curlError = curl_error($ch);
+            error_log('CURL error during token request: ' . $curlError);
             curl_close($ch);
             return null;
         }
@@ -136,8 +153,15 @@ class AmoAuth
         curl_close($ch);
 
         if ($httpCode !== 200) {
-            error_log("HTTP error $httpCode: $response");
-            return null;
+            error_log("AmoCRM OAuth error (HTTP $httpCode): $response");
+            
+            // Response decode qilib ko'ramiz
+            $decoded = json_decode($response, true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($decoded['hint'])) {
+                error_log('OAuth hint: ' . $decoded['hint']);
+            }
+            
+            return $decoded ?? ['error' => 'HTTP ' . $httpCode, 'response' => $response];
         }
 
         $result = json_decode($response, true);
