@@ -14,7 +14,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Project directory
-PROJECT_DIR="/home/abuG24172911-kc/amocrm-integration-gateway"
+PROJECT_DIR="/home/abu/amocrm-integration-gateway"
 
 # Check if project directory exists
 if [ ! -d "$PROJECT_DIR" ]; then
