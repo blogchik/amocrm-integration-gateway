@@ -20,6 +20,12 @@ use AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueCollec
 use AmoCRM\Models\CustomFieldsValues\NumericCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\ValueModels\NumericCustomFieldValueModel;
 use AmoCRM\Models\CustomFieldsValues\ValueCollections\NumericCustomFieldValueCollection;
+use AmoCRM\Models\CustomFieldsValues\MultiselectCustomFieldValuesModel;
+use AmoCRM\Models\CustomFieldsValues\ValueModels\MultiselectCustomFieldValueModel;
+use AmoCRM\Models\CustomFieldsValues\ValueCollections\MultiselectCustomFieldValueCollection;
+use AmoCRM\Models\CustomFieldsValues\SelectCustomFieldValuesModel;
+use AmoCRM\Models\CustomFieldsValues\ValueModels\SelectCustomFieldValueModel;
+use AmoCRM\Models\CustomFieldsValues\ValueCollections\SelectCustomFieldValueCollection;
 use AmoCRM\Collections\TagsCollection;
 use AmoCRM\Models\TagModel;
 use AmoCRM\Models\NoteType\CommonNote;
@@ -297,6 +303,33 @@ class LeadControllerV2
                 $field->setValues(
                     (new NumericCustomFieldValueCollection())
                         ->add((new NumericCustomFieldValueModel())->setValue($fieldData['value']))
+                );
+                $collection->add($field);
+            }
+            // Multiselect field (enum_ids)
+            elseif (isset($fieldData['enum_ids']) && is_array($fieldData['enum_ids'])) {
+                $field = new MultiselectCustomFieldValuesModel();
+                $field->setFieldId($fieldId);
+                
+                $valueCollection = new MultiselectCustomFieldValueCollection();
+                foreach ($fieldData['enum_ids'] as $enumId) {
+                    $valueCollection->add(
+                        (new MultiselectCustomFieldValueModel())->setEnumId((int)$enumId)
+                    );
+                }
+                
+                $field->setValues($valueCollection);
+                $collection->add($field);
+                
+                error_log('Added multiselect field: ' . $fieldId . ' with enums: ' . json_encode($fieldData['enum_ids']));
+            }
+            // Single select field (enum_id)
+            elseif (isset($fieldData['enum_id']) && is_numeric($fieldData['enum_id'])) {
+                $field = new SelectCustomFieldValuesModel();
+                $field->setFieldId($fieldId);
+                $field->setValues(
+                    (new SelectCustomFieldValueCollection())
+                        ->add((new SelectCustomFieldValueModel())->setEnumId((int)$fieldData['enum_id']))
                 );
                 $collection->add($field);
             }
