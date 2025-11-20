@@ -169,10 +169,10 @@ class AmoClientV2
     /**
      * Custom fields service'ni olish
      * 
-     * @param int $entityType Entity type (EntityTypesInterface::LEADS, CONTACTS, etc.)
+     * @param string $entityType Entity type (EntityTypesInterface::LEADS, CONTACTS, etc.)
      * @return \AmoCRM\EntitiesServices\CustomFields
      */
-    public function customFields(int $entityType)
+    public function customFields(string $entityType)
     {
         return $this->apiClient->customFields($entityType);
     }

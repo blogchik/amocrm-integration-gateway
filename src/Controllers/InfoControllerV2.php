@@ -87,8 +87,7 @@ class InfoControllerV2
     public function getLeadFields(): void
     {
         try {
-            // EntityTypesInterface::LEADS = 2
-            $customFields = $this->client->customFields(2)->get();
+            $customFields = $this->client->customFields(EntityTypesInterface::LEADS)->get();
             
             $result = [];
             foreach ($customFields as $field) {
@@ -122,8 +121,7 @@ class InfoControllerV2
     public function getContactFields(): void
     {
         try {
-            // EntityTypesInterface::CONTACTS = 1
-            $customFields = $this->client->customFields(1)->get();
+            $customFields = $this->client->customFields(EntityTypesInterface::CONTACTS)->get();
             
             $result = [];
             foreach ($customFields as $field) {
