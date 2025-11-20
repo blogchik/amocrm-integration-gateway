@@ -1,6 +1,21 @@
+# Token storage
 storage/tokens.json
+storage/refresh.lock
+storage/*.log
+
+# Environment
 .env
+
+# Dependencies
 vendor/
+composer.lock
+
+# IDE
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+
+# Logs
 *.log

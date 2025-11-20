@@ -13,7 +13,16 @@ ini_set('display_errors', '0'); // Production uchun 0
 ini_set('log_errors', '1');
 ini_set('error_log', __DIR__ . '/../storage/error.log');
 
-// Autoloader
+// Session start (OAuth uchun)
+session_start();
+
+// Composer autoloader
+$composerAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($composerAutoload)) {
+    require_once $composerAutoload;
+}
+
+// Custom autoloader (fallback)
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';
     $baseDir = __DIR__ . '/../src/';
@@ -43,9 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 use App\Middleware\ApiKeyMiddleware;
-use App\Controllers\LeadController;
-use App\Controllers\InfoController;
+use App\Controllers\LeadControllerV2;
+use App\Controllers\InfoControllerV2;
 use App\Controllers\DiagnosticsController;
+use App\Controllers\OAuthController;
 use App\Helpers\Response;
 
 // Routing
@@ -63,6 +73,25 @@ try {
         exit;
     }
 
+    // OAuth endpoints (API key kerak emas)
+    if ($method === 'GET' && $uri === '/oauth/authorize') {
+        $controller = new OAuthController();
+        $controller->authorize();
+        exit;
+    }
+
+    if ($method === 'GET' && $uri === '/oauth/callback') {
+        $controller = new OAuthController();
+        $controller->callback();
+        exit;
+    }
+
+    if ($method === 'GET' && $uri === '/oauth/status') {
+        $controller = new OAuthController();
+        $controller->status();
+        exit;
+    }
+
     // API Key middleware (faqat API endpointlari uchun)
     if (!ApiKeyMiddleware::check()) {
         exit; // Middleware o'zi response yuboradi
@@ -70,42 +99,42 @@ try {
 
     // POST /api/v1/leads/unsorted
     if ($method === 'POST' && $uri === '/api/v1/leads/unsorted') {
-        $controller = new LeadController();
+        $controller = new LeadControllerV2();
         $controller->createUnsorted();
         exit;
     }
 
     // GET /api/v1/info/pipelines - Barcha pipelinelar
     if ($method === 'GET' && $uri === '/api/v1/info/pipelines') {
-        $controller = new InfoController();
+        $controller = new InfoControllerV2();
         $controller->getPipelines();
         exit;
     }
 
     // GET /api/v1/info/pipelines/{id} - Bitta pipeline
     if ($method === 'GET' && preg_match('#^/api/v1/info/pipelines/(\d+)$#', $uri, $matches)) {
-        $controller = new InfoController();
+        $controller = new InfoControllerV2();
         $controller->getPipelineById((int)$matches[1]);
         exit;
     }
 
     // GET /api/v1/info/lead-fields - Lead custom fields
     if ($method === 'GET' && $uri === '/api/v1/info/lead-fields') {
-        $controller = new InfoController();
+        $controller = new InfoControllerV2();
         $controller->getLeadFields();
         exit;
     }
 
     // GET /api/v1/info/contact-fields - Contact custom fields
     if ($method === 'GET' && $uri === '/api/v1/info/contact-fields') {
-        $controller = new InfoController();
+        $controller = new InfoControllerV2();
         $controller->getContactFields();
         exit;
     }
 
     // GET /api/v1/info/account - Account info
     if ($method === 'GET' && $uri === '/api/v1/info/account') {
-        $controller = new InfoController();
+        $controller = new InfoControllerV2();
         $controller->getAccount();
         exit;
     }

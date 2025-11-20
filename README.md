@@ -1,102 +1,300 @@
-# AmoCRM Integration Gateway
+# AmoCRM Integration Gateway v2.0
 
-**AmoCRM bilan integratsiya uchun REST API Gateway**
+**AmoCRM bilan integratsiya uchun REST API Gateway** (AmoCRM rasmiy kutubxonasi bilan)
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-%3E%3D8.2-777BB4.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 
+## 🎉 Yangiliklar v2.0
+
+- ✅ **AmoCRM rasmiy PHP kutubxonasi** integratsiyalandi
+- ✅ **Avtomatik token refresh** - hech qachon expire bo'lmaydi
+- ✅ **24/7 ishlaydi** - uzoq vaqt ishlatilmasa ham muammo yo'q
+- ✅ **Professional error handling** - barcha xatolar to'g'ri boshqariladi
+- ✅ **OAuth2 callback** - oson avtorizatsiya
+- ✅ **Backward compatible** - barcha API endpointlar oldingiday
+
 ## 📋 Mundarija
 
-- [Loyiha haqida](#loyiha-haqida)
-- [Asosiy imkoniyatlar](#asosiy-imkoniyatlar)
-- [Texnologiyalar](#texnologiyalar)
-- [Tizim talablari](#tizim-talablari)
-- [O'rnatish](#ornatish)
-  - [Docker orqali o'rnatish (Tavsiya etiladi)](#docker-orqali-ornatish-tavsiya-etiladi)
-  - [To'g'ridan-to'g'ri server o'rnatish](#togri-tg-server-ornatish)
-- [Konfiguratsiya](#konfiguratsiya)
-  - [.env fayl sozlash](#env-fayl-sozlash)
-  - [AmoCRM OAuth2 sozlash](#amocrm-oauth2-sozlash)
+- [Tezkor boshlash](#tezkor-boshlash)
+- [Asosiy farqlar (v1 vs v2)](#asosiy-farqlar-v1-vs-v2)
 - [API Endpointlar](#api-endpointlar)
-  - [Autentifikatsiya](#autentifikatsiya)
-  - [Lead yaratish](#lead-yaratish)
-  - [Ma'lumot olish](#ma-lumot-olish)
-- [Deployment (Serverga ko'tarish)](#deployment-serverga-kotarish)
-  - [Production muhitiga joylashtirish](#production-muhitiga-joylashtirish)
-  - [Docker Compose bilan deploy](#docker-compose-bilan-deploy)
-  - [Nginx + PHP-FPM bilan deploy](#nginx--php-fpm-bilan-deploy)
-- [Monitoring va Logging](#monitoring-va-logging)
-- [Xatolarni tuzatish (Troubleshooting)](#xatolarni-tuzatish-troubleshooting)
-- [Debugging](#debugging)
-- [Xavfsizlik](#xavfsizlik)
+- [Docker bilan ishlatish](#docker-bilan-ishlatish)
+- [Production Deploy](#production-deploy)
+- [Migration (v1.x → v2.0)](#migration-v1x--v20)
+- [Texnologiyalar](#texnologiyalar)
+- [Yordam](#yordam)
 - [Hissa qo'shish](#hissa-qoshish)
 - [Litsenziya](#litsenziya)
-- [Muallif](#muallif)
 
 ---
 
-## Loyiha haqida
+## Tezkor boshlash
 
-**AmoCRM Integration Gateway** - bu tashqi ilovalar (veb-saytlar, CRM tizimlar, chatbotlar) va AmoCRM o'rtasida xavfsiz ma'lumot almashishni ta'minlaydigan REST API gateway hisoblanadi.
+### 1. O'rnatish
 
-### Nima uchun kerak?
+```bash
+git clone https://github.com/blogchik/amocrm-integration-gateway.git
+cd amocrm-integration-gateway
+composer install
+cp .env.example .env
+```
 
-1. **Markazlashgan autentifikatsiya** - AmoCRM OAuth2 tokenlarini bir joyda boshqarish
-2. **Xavfsizlik** - API kalitlar orqali kirish nazorati
-3. **Soddalik** - Murakkab AmoCRM API'ni sodda REST endpointlar bilan almashtirish
-4. **Kengaytiriluvchanlik** - Har qanday tashqi tizimdan foydalanish mumkin
-5. **Monitoring** - Log va error tracking
+### 2. Konfiguratsiya
 
-### Foydalanish holatlari
+`.env` faylni tahrirlang:
 
-- Landing page'lardan AmoCRM'ga lead yuborish
-- Telegram/WhatsApp botlardan CRM'ga ma'lumot integratsiyasi
-- Uchinchi tomon tizimlarni AmoCRM bilan bog'lash
-- CRM ma'lumotlarini boshqa tizimlar bilan sinxronlash
+```env
+API_KEY=your-secret-gateway-key
+
+AMO_DOMAIN=yoursubdomain.amocrm.ru
+AMO_CLIENT_ID=your-integration-id
+AMO_CLIENT_SECRET=your-integration-secret
+AMO_REDIRECT_URI=https://your-domain.com/oauth/callback
+
+TOKEN_STORAGE_PATH=./storage/tokens.json
+```
+
+### 3. AmoCRM avtorizatsiyasi
+
+Brauzerda oching:
+```
+https://your-domain.com/oauth/authorize
+```
+
+AmoCRM'ga login qiling va ruxsat bering. Token avtomatik saqlanadi.
+
+### 4. Ishlatish
+
+Lead yaratish:
+
+```bash
+curl -X POST https://your-domain.com/api/v1/leads/unsorted \
+  -H "X-API-KEY: your-secret-gateway-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": "website",
+    "form_name": "Contact Form",
+    "lead": {
+      "name": "Yangi mijoz",
+      "price": 10000
+    },
+    "contact": {
+      "name": "Alisher Valiev",
+      "phone": "+998901234567",
+      "email": "alisher@example.com"
+    }
+  }'
+```
+
+## Asosiy farqlar (v1 vs v2)
+
+| Xususiyat | v1.x | v2.0 |
+|-----------|------|------|
+| Token refresh | Manual | Avtomatik ✅ |
+| 24 soat ishlatilmasa | Xato ❌ | Ishlaydi ✅ |
+| AmoCRM kutubxonasi | Custom CURL | Rasmiy ✅ |
+| Error handling | Basic | Professional ✅ |
+| Token storage | JSON file | JSON file + OAuthService |
+| API endpoints | Same | Same (100% compatible) |
+
+## API Endpointlar
+
+### OAuth Endpoints
+
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/oauth/authorize` | AmoCRM'ga yo'naltirish |
+| GET | `/oauth/callback` | OAuth callback (avtomatik) |
+| GET | `/oauth/status` | Token status tekshirish |
+
+### Lead Endpoints
+
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| POST | `/api/v1/leads/unsorted` | Unsorted lead yaratish |
+
+### Info Endpoints
+
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/v1/info/pipelines` | Barcha voronkalar |
+| GET | `/api/v1/info/pipelines/{id}` | Bitta voronka |
+| GET | `/api/v1/info/lead-fields` | Lead custom fields |
+| GET | `/api/v1/info/contact-fields` | Contact custom fields |
+| GET | `/api/v1/info/account` | Account ma'lumotlari |
+
+### System Endpoints
+
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/health` | Health check |
 
 ---
 
-## Asosiy imkoniyatlar
+## Docker bilan ishlatish
 
-### ✅ Lead bilan ishlash
-- **Unsorted lead yaratish** - Yangi tartibsiz lidlar qo'shish
-- **Custom fields** - Ixtiyoriy qo'shimcha maydonlarni yuborish
-- **Tags** - Leadlarga teglar biriktirish
-- **UTM tracking** - Marketing parametrlarini saqlash
-- **Notes** - Izohlar va kommentariyalar qo'shish
+```bash
+# Build va ishga tushirish
+docker-compose up -d
 
-### 🔍 Ma'lumot olish
-- **Pipelines** - Barcha va alohida pipeline ma'lumotlari
-- **Custom fields** - Lead va Contact custom fieldlari
-- **Account info** - AmoCRM account ma'lumotlari
+# Composer install
+docker-compose exec app composer install
 
-### 🔐 Xavfsizlik
-- **API Key autentifikatsiya** - X-API-KEY header orqali nazorat
-- **OAuth2 token management** - Avtomatik token yangilash
-- **CORS support** - Cross-origin requestlar uchun
-- **Request validation** - Kiruvchi ma'lumotlarni validatsiya qilish
+# Logs ko'rish
+docker-compose logs -f
 
-### 🐳 DevOps
-- **Docker containerization** - To'liq Docker va Docker Compose yordami
-- **Nginx reverse proxy** - Ishlab chiqarishga tayyor web server
-- **Auto-restart** - Konteynerlarning avtomatik qayta ishga tushishi
-- **Volume persistence** - Ma'lumotlarni saqlash
+# To'xtatish
+docker-compose down
+```
+
+---
+
+## Production Deploy
+
+### Nginx + PHP-FPM
+
+```bash
+# Dependencies
+composer install --no-dev --optimize-autoloader
+
+# Permissions
+chmod 600 storage/tokens.json
+chmod 600 .env
+
+# OAuth avtorizatsiya
+curl https://your-domain.com/oauth/authorize
+```
+
+### Docker Production
+
+```yaml
+# docker-compose.prod.yml
+version: '3.8'
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      - APP_ENV=production
+    volumes:
+      - ./storage:/var/www/html/storage
+    restart: unless-stopped
+```
+
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+---
+
+## Migration (v1.x → v2.0)
+
+Eski versiyadan o'tish uchun: [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md)
+
+Qisqacha:
+
+1. `composer install`
+2. Eski `storage/tokens.json` ni o'chirish
+3. Qayta avtorizatsiya: `/oauth/authorize`
+4. Tayyor! ✅
 
 ---
 
 ## Texnologiyalar
 
-- **PHP 8.2+** - Backend dasturlash tili
-- **Docker** - Konteynerizatsiya
-- **Docker Compose** - Multi-container orchestration
-- **Nginx** - Web server va reverse proxy
-- **PHP-FPM** - FastCGI Process Manager
-- **AmoCRM API v4** - CRM integratsiyasi
-- **cURL** - HTTP so'rovlar uchun
-- **JSON** - Ma'lumot formati
+- PHP 8.2+
+- [AmoCRM API PHP Library](https://github.com/amocrm/amocrm-api-php) v1.14+
+- Composer
+- Docker & Docker Compose
+- Nginx
+- OAuth2
 
 ---
+
+## Misol
+
+Lead yaratish (to'liq):
+
+```json
+{
+  "source": "website",
+  "form_name": "Main Contact Form",
+  "form_page": "https://example.com/contact",
+  "lead": {
+    "name": "Yangi lead - Alisher",
+    "price": 25000,
+    "custom_fields": [
+      {
+        "field_id": 123456,
+        "value": "Qo'shimcha ma'lumot"
+      }
+    ],
+    "tags": ["website", "urgent"]
+  },
+  "contact": {
+    "name": "Alisher Valiev",
+    "phone": "+998901234567",
+    "email": "alisher@example.com"
+  },
+  "utm": {
+    "utm_source": "google",
+    "utm_medium": "cpc",
+    "utm_campaign": "spring2024"
+  },
+  "comment": "Tez aloqa qiling!",
+  "ip": "192.168.1.1"
+}
+```
+
+---
+
+## Yordam
+
+### Token muammolari
+
+```bash
+# Token statusini tekshirish
+curl https://your-domain.com/oauth/status \
+  -H "X-API-KEY: your-key"
+
+# Qayta avtorizatsiya
+curl https://your-domain.com/oauth/authorize
+```
+
+### Error loglar
+
+```bash
+# Docker
+docker-compose logs -f app
+
+# Direct
+tail -f storage/error.log
+```
+
+---
+
+## Hissa qo'shish
+
+Pull request'lar xush kelibsiz!
+
+---
+
+## Litsenziya
+
+Apache 2.0 License
+
+---
+
+## Muallif
+
+**Jabborov Abduroziq**
+
+---
+
+**v2.0.0** - Token expire muammosi butunlay hal qilindi! 🎉
 
 ## Tizim talablari
 
