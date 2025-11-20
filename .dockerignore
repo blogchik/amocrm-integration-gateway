@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+vendor/
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+tests/
